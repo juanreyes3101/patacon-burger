@@ -25,7 +25,7 @@ const destacados = menu.flatMap((cat) => cat.items).filter((item) => item.destac
 
   <section class="section">
     <div class="container">
-      <h2>Lo más pedido</h2>
+      <h2 data-reveal>Lo más pedido</h2>
       <div class="grid">
         {destacados.map((item) => <MenuItem item={item} />)}
       </div>
@@ -33,7 +33,7 @@ const destacados = menu.flatMap((cat) => cat.items).filter((item) => item.destac
   </section>
 
   <section class="section section--dark">
-    <div class="container cta-final">
+    <div class="container cta-final" data-reveal>
       <h2>¿Antojo de patacón?</h2>
       <p>Escríbenos y te lo tenemos listo.</p>
       <a class="btn btn--whatsapp" href="/contacto">Hacer pedido</a>

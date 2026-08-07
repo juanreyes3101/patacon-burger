@@ -1,5 +1,7 @@
 ---
+import { Image } from "astro:assets";
 import type { MenuItem } from "../data/menu";
+import { imagenesProductos } from "../utils/imagenesProductos";
 
 interface Props {
   item: MenuItem;
@@ -12,23 +14,67 @@ const precioFormateado = new Intl.NumberFormat("es-CO", {
   currency: "COP",
   maximumFractionDigits: 0,
 }).format(item.precio);
+
+const imagenSrc = item.imagen
+  ? imagenesProductos[`/src/assets/productos/${item.imagen}`]?.default
+  : undefined;
+
+if (item.imagen && !imagenSrc) {
+  console.warn(`[menu] imagen "${item.imagen}" no encontrada en src/assets/productos/`);
+}
 ---
 
-<article class="menu-item">
-  <div class="menu-item__header">
-    <h3>{item.nombre}</h3>
-    {item.destacado && <span class="badge">Producto estrella</span>}
+<article class="menu-item" data-reveal>
+  {imagenSrc && (
+    <Image
+      src={imagenSrc}
+      alt={item.nombre}
+      width={400}
+      height={300}
+      class="menu-item__img"
+    />
+  )}
+  <div class="menu-item__body">
+    <div class="menu-item__header">
+      <h3>{item.nombre}</h3>
+      {item.destacado && <span class="badge">Producto estrella</span>}
+    </div>
+    <p class="menu-item__descripcion">{item.descripcion}</p>
+    <p class="menu-item__precio">{precioFormateado}</p>
   </div>
-  <p class="menu-item__descripcion">{item.descripcion}</p>
-  <p class="menu-item__precio">{precioFormateado}</p>
 </article>
 
 <style>
   .menu-item {
     background: #fff;
     border-radius: 12px;
-    padding: 1.25rem;
+    overflow: hidden;
     box-shadow: 0 2px 8px rgba(43, 27, 18, 0.08);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .menu-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(43, 27, 18, 0.14);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu-item:hover {
+      transform: none;
+    }
+  }
+
+  .menu-item__img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .menu-item__body {
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;

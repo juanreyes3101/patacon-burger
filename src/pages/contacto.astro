@@ -1,16 +1,8 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { negocio, enlaceWhatsApp, enlaceMapa } from "../data/negocio";
 
-// [PENDIENTE: reemplazar con los datos reales del local]
-const direccion = "Dirección pendiente, Bogotá";
-const horario = [
-  { dias: "Lunes a viernes", horas: "5:00 p.m. – 10:00 p.m." },
-  { dias: "Sábados y domingos", horas: "3:00 p.m. – 11:00 p.m." },
-];
-const numeroWhatsApp = "573000000000";
-const mensaje = "¡Hola! Quiero hacer un pedido en Patacón Burger 🍔";
-const enlaceWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
-const enlaceMapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`;
+const { direccion, horario } = negocio;
 ---
 
 <BaseLayout title="Contacto">
