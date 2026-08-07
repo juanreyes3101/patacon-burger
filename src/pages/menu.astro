@@ -1,0 +1,47 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import MenuItem from "../components/MenuItem.astro";
+import { menu } from "../data/menu";
+---
+
+<BaseLayout title="Menú">
+  <section class="section">
+    <div class="container">
+      <h1>Nuestro menú</h1>
+      <p class="intro">
+        Todo casero, hecho el mismo día. Precios en pesos colombianos.
+      </p>
+
+      {
+        menu.map((categoria) => (
+          <div class="categoria">
+            <h2>{categoria.titulo}</h2>
+            <div class="grid">
+              {categoria.items.map((item) => (
+                <MenuItem item={item} />
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .intro {
+    color: #5a4636;
+    margin-bottom: 2rem;
+  }
+
+  .categoria {
+    margin-bottom: 2.5rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+</style>

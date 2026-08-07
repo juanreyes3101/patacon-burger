@@ -1,0 +1,122 @@
+---
+import WhatsAppButton from "../components/WhatsAppButton.astro";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "Patacón Burger — hamburguesas de patacón, empanadas, pasteles y chorizos de barrio.",
+} = Astro.props;
+
+const nav = [
+  { href: "/", label: "Inicio" },
+  { href: "/menu", label: "Menú" },
+  { href: "/nosotros", label: "Nosotros" },
+  { href: "/contacto", label: "Contacto" },
+];
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito+Sans:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title} · Patacón Burger</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="site-header__brand" href="/">Patacón Burger</a>
+        <nav class="site-header__nav">
+          {
+            nav.map((item) => (
+              <a href={item.href}>{item.label}</a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>Patacón Burger — de barrio, con sazón de casa.</p>
+        <p class="site-footer__small">
+          © {new Date().getFullYear()} Patacón Burger. Todos los derechos reservados.
+        </p>
+      </div>
+    </footer>
+
+    <WhatsAppButton />
+
+    <style>
+      .site-header {
+        background: var(--color-bg);
+        color: var(--color-text-light);
+        position: sticky;
+        top: 0;
+        z-index: 40;
+      }
+
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .site-header__brand {
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        text-decoration: none;
+        color: var(--color-accent);
+      }
+
+      .site-header__nav {
+        display: flex;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+      }
+
+      .site-header__nav a {
+        text-decoration: none;
+        color: var(--color-text-light);
+        font-weight: 700;
+        font-size: 0.95rem;
+      }
+
+      .site-header__nav a:hover {
+        color: var(--color-accent);
+      }
+
+      .site-footer {
+        background: var(--color-bg);
+        color: var(--color-text-light);
+        text-align: center;
+        padding: 2rem 1.25rem;
+        margin-top: 2rem;
+      }
+
+      .site-footer__small {
+        opacity: 0.7;
+        font-size: 0.85rem;
+      }
+    </style>
+  </body>
+</html>

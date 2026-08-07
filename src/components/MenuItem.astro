@@ -1,0 +1,60 @@
+---
+import type { MenuItem } from "../data/menu";
+
+interface Props {
+  item: MenuItem;
+}
+
+const { item } = Astro.props;
+
+const precioFormateado = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  maximumFractionDigits: 0,
+}).format(item.precio);
+---
+
+<article class="menu-item">
+  <div class="menu-item__header">
+    <h3>{item.nombre}</h3>
+    {item.destacado && <span class="badge">Producto estrella</span>}
+  </div>
+  <p class="menu-item__descripcion">{item.descripcion}</p>
+  <p class="menu-item__precio">{precioFormateado}</p>
+</article>
+
+<style>
+  .menu-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(43, 27, 18, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .menu-item__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .menu-item__header h3 {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .menu-item__descripcion {
+    margin: 0;
+    color: #5a4636;
+    font-size: 0.95rem;
+  }
+
+  .menu-item__precio {
+    margin: 0;
+    font-weight: 800;
+    color: var(--color-primary);
+  }
+</style>

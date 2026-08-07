@@ -1,0 +1,45 @@
+---
+// [PENDIENTE: reemplazar con el número real de WhatsApp del local, formato 57XXXXXXXXXX]
+const numeroWhatsApp = "573000000000";
+const mensaje = "¡Hola! Quiero hacer un pedido en Patacón Burger 🍔";
+const enlace = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+---
+
+<a class="whatsapp-fab" href={enlace} target="_blank" rel="noopener" aria-label="Pedir por WhatsApp">
+  <span aria-hidden="true">💬</span>
+  <span class="whatsapp-fab__text">Pedir por WhatsApp</span>
+</a>
+
+<style>
+  .whatsapp-fab {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #25d366;
+    color: #08331b;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    text-decoration: none;
+    padding: 0.75em 1.1em;
+    border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  .whatsapp-fab:hover {
+    filter: brightness(0.97);
+  }
+
+  .whatsapp-fab__text {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .whatsapp-fab__text {
+      display: inline;
+    }
+  }
+</style>

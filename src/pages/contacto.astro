@@ -1,0 +1,76 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+// [PENDIENTE: reemplazar con los datos reales del local]
+const direccion = "Dirección pendiente, Bogotá";
+const horario = [
+  { dias: "Lunes a viernes", horas: "5:00 p.m. – 10:00 p.m." },
+  { dias: "Sábados y domingos", horas: "3:00 p.m. – 11:00 p.m." },
+];
+const numeroWhatsApp = "573000000000";
+const mensaje = "¡Hola! Quiero hacer un pedido en Patacón Burger 🍔";
+const enlaceWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+const enlaceMapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`;
+---
+
+<BaseLayout title="Contacto">
+  <section class="section">
+    <div class="container contacto">
+      <h1>Ubicación y contacto</h1>
+
+      <div class="contacto__grid">
+        <div>
+          <h2>Dirección</h2>
+          <p>{direccion}</p>
+          <a class="btn btn--primary" href={enlaceMapa} target="_blank" rel="noopener">
+            Cómo llegar
+          </a>
+        </div>
+
+        <div>
+          <h2>Horario</h2>
+          <ul class="horario">
+            {
+              horario.map((h) => (
+                <li>
+                  <strong>{h.dias}:</strong> {h.horas}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="contacto__cta">
+        <h2>¿Listo para pedir?</h2>
+        <a class="btn btn--whatsapp" href={enlaceWhatsApp} target="_blank" rel="noopener">
+          Pedir por WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contacto__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+
+  .horario {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .horario li {
+    margin-bottom: 0.4rem;
+  }
+
+  .contacto__cta {
+    text-align: center;
+    margin-top: 2rem;
+  }
+</style>
