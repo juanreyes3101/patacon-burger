@@ -1,5 +1,11 @@
 ---
+import { Image } from "astro:assets";
 import type { MenuItem } from "../data/menu";
+import { imagenesProductos } from "../utils/imagenesProductos";
+import { normalizar } from "../utils/texto";
+import { slugify } from "../utils/slugify";
+import { enlacePedido } from "../data/negocio";
+import IconoCompartir from "./IconoCompartir.astro";
 
 interface Props {
   item: MenuItem;
@@ -12,23 +18,90 @@ const precioFormateado = new Intl.NumberFormat("es-CO", {
   currency: "COP",
   maximumFractionDigits: 0,
 }).format(item.precio);
+
+const imagenSrc = item.imagen
+  ? imagenesProductos[`/src/assets/productos/${item.imagen}`]?.default
+  : undefined;
+
+if (item.imagen && !imagenSrc) {
+  console.warn(`[menu] imagen "${item.imagen}" no encontrada en src/assets/productos/`);
+}
+
+const itemSlug = slugify(item.nombre);
+const base = import.meta.env.BASE_URL;
+const urlProducto = new URL(`${base}menu#${itemSlug}`, Astro.site).toString();
+const enlacePedidoProducto = enlacePedido(
+  `¡Hola! Quiero pedir: ${item.nombre} (${precioFormateado})`
+);
 ---
 
-<article class="menu-item">
-  <div class="menu-item__header">
-    <h3>{item.nombre}</h3>
-    {item.destacado && <span class="badge">Producto estrella</span>}
+<article class="menu-item" id={itemSlug} data-reveal data-nombre={normalizar(item.nombre)}>
+  {imagenSrc && (
+    <Image
+      src={imagenSrc}
+      alt={item.nombre}
+      width={400}
+      height={300}
+      class="menu-item__img"
+    />
+  )}
+  <div class="menu-item__body">
+    <div class="menu-item__header">
+      <h3>{item.nombre}</h3>
+      {item.destacado && <span class="badge">Producto estrella</span>}
+    </div>
+    <p class="menu-item__descripcion">{item.descripcion}</p>
+    <p class="menu-item__precio">{precioFormateado}</p>
+    <div class="menu-item__actions">
+      <a class="btn btn--whatsapp btn--small" href={enlacePedidoProducto} target="_blank" rel="noopener">
+        Pedir por WhatsApp
+      </a>
+      <button
+        type="button"
+        class="share-btn"
+        data-share-title={item.nombre}
+        data-share-text={item.descripcion}
+        data-share-url={urlProducto}
+        aria-label={`Compartir ${item.nombre}`}
+      >
+        <IconoCompartir />
+      </button>
+    </div>
   </div>
-  <p class="menu-item__descripcion">{item.descripcion}</p>
-  <p class="menu-item__precio">{precioFormateado}</p>
 </article>
 
 <style>
   .menu-item {
     background: #fff;
     border-radius: 12px;
-    padding: 1.25rem;
+    overflow: hidden;
     box-shadow: 0 2px 8px rgba(43, 27, 18, 0.08);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    scroll-margin-top: 5rem;
+  }
+
+  .menu-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(43, 27, 18, 0.14);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu-item:hover {
+      transform: none;
+    }
+  }
+
+  .menu-item__img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .menu-item__body {
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -55,6 +128,18 @@ const precioFormateado = new Intl.NumberFormat("es-CO", {
   .menu-item__precio {
     margin: 0;
     font-weight: 800;
-    color: var(--color-primary);
+    color: var(--color-primary-dark);
+  }
+
+  .menu-item__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .menu-item__actions .btn--small {
+    flex: 1;
+    text-align: center;
   }
 </style>

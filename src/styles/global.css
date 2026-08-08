@@ -7,7 +7,7 @@
   --color-text: #2b1b12;
   --color-text-light: #fff3e2;
 
-  --font-display: "Bungee", "Segoe UI", sans-serif;
+  --font-display: "Montserrat", "Segoe UI", sans-serif;
   --font-body: "Nunito Sans", "Segoe UI", sans-serif;
 
   --max-width: 1100px;
@@ -17,10 +17,27 @@
   box-sizing: border-box;
 }
 
+/* El atributo `hidden` debe ganar siempre, incluso sobre componentes que
+   fijan su propio `display` (ej. `.menu-item { display: flex }`) — sin esto,
+   el filtro de búsqueda del menú no oculta las tarjetas que no coinciden. */
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -34,6 +51,7 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
+  font-weight: 800;
   line-height: 1.2;
   margin: 0 0 0.5em;
 }
@@ -77,6 +95,7 @@ img {
 .btn {
   display: inline-block;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 1rem;
   letter-spacing: 0.02em;
   text-decoration: none;
@@ -91,14 +110,99 @@ img {
   transform: translateY(-2px);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover {
+    transform: none;
+  }
+}
+
+/* Scroll-reveal: el atributo data-reveal se sirve siempre visible desde el
+   servidor; solo se oculta y anima si el JS realmente corrió (clase .js en
+   <html>), para que el sitio siga siendo utilizable sin JS. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 .btn--primary {
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   color: var(--color-text-light);
-  box-shadow: 0 4px 0 var(--color-primary-dark);
+  box-shadow: 0 4px 0 #7a2513;
 }
 
 .btn--whatsapp {
   background: #25d366;
   color: #08331b;
   box-shadow: 0 4px 0 #128c43;
+}
+
+.btn--small {
+  padding: 0.5em 1em;
+  font-size: 0.8rem;
+}
+
+/* Botón de compartir: oculto hasta confirmar que el navegador soporta la Web
+   Share API (clase agregada por script en BaseLayout.astro). */
+.share-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  width: 2.3rem;
+  height: 2.3rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 2px solid var(--color-primary-dark);
+  background: transparent;
+  color: var(--color-primary-dark);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.share-supported .share-btn {
+  display: inline-flex;
+}
+
+.share-btn--footer {
+  width: auto;
+  height: auto;
+  padding: 0.5em 1em;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-color: var(--color-text-light);
+  color: var(--color-text-light);
+}
+
+.estado-horario {
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.35em 0.85em;
+  border-radius: 999px;
+}
+
+.estado-horario--abierto {
+  background: #17703c;
+  color: #eafff1;
+}
+
+.estado-horario--cerrado {
+  background: #55483d;
+  color: #fff3e2;
 }

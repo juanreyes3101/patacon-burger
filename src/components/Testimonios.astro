@@ -1,0 +1,51 @@
+---
+import { testimonios } from "../data/testimonios";
+---
+
+{
+  testimonios.length > 0 && (
+    <div class="testimonios">
+      <h2>Lo que dicen de nosotros</h2>
+      <div class="testimonios__grid">
+        {testimonios.map((t) => (
+          <blockquote class="testimonio">
+            <p class="testimonio__texto">"{t.texto}"</p>
+            <footer class="testimonio__nombre">— {t.nombre}</footer>
+          </blockquote>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .testimonios {
+    margin-top: 2.5rem;
+  }
+
+  .testimonios__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+
+  .testimonio {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin: 0;
+    box-shadow: 0 2px 8px rgba(43, 27, 18, 0.08);
+  }
+
+  .testimonio__texto {
+    margin: 0 0 0.75rem;
+    font-style: italic;
+  }
+
+  .testimonio__nombre {
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--color-primary-dark);
+  }
+</style>

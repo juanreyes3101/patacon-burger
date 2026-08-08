@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://juanreyes3101.github.io/patacon-burger/sitemap.xml

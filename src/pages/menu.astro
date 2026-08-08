@@ -12,9 +12,50 @@ import { menu } from "../data/menu";
         Todo casero, hecho el mismo día. Precios en pesos colombianos.
       </p>
 
+      <input
+        type="search"
+        class="menu-buscador"
+        placeholder="Buscar en el menú…"
+        aria-label="Buscar productos por nombre"
+      />
+
+      <div class="menu-tabs" role="tablist" aria-label="Categorías del menú">
+        <a
+          href="#todas"
+          id="tab-todas"
+          role="tab"
+          aria-selected="true"
+          class="menu-tabs__tab is-active"
+          data-target="todas"
+        >
+          Todas
+        </a>
+        {
+          menu.map((categoria) => (
+            <a
+              href={`#${categoria.slug}`}
+              id={`tab-${categoria.slug}`}
+              role="tab"
+              aria-selected="false"
+              aria-controls={categoria.slug}
+              class="menu-tabs__tab"
+              data-target={categoria.slug}
+            >
+              {categoria.titulo}
+            </a>
+          ))
+        }
+      </div>
+
       {
         menu.map((categoria) => (
-          <div class="categoria">
+          <div
+            class="categoria"
+            id={categoria.slug}
+            role="tabpanel"
+            aria-labelledby={`tab-${categoria.slug}`}
+            data-categoria={categoria.slug}
+          >
             <h2>{categoria.titulo}</h2>
             <div class="grid">
               {categoria.items.map((item) => (
@@ -31,11 +72,65 @@ import { menu } from "../data/menu";
 <style>
   .intro {
     color: #5a4636;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .menu-buscador {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    padding: 0.65em 1em;
+    margin-bottom: 1rem;
+    border: 2px solid #e6d9cb;
+    border-radius: 999px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+  }
+
+  .menu-buscador:focus {
+    outline: none;
+    border-color: var(--color-primary-dark);
+  }
+
+  .menu-tabs {
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+    scrollbar-width: thin;
+  }
+
+  .menu-tabs__tab {
+    flex: 0 0 auto;
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.9rem;
+    text-decoration: none;
+    color: var(--color-text);
+    background: #fff;
+    border: 2px solid transparent;
+    padding: 0.55em 1.1em;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(43, 27, 18, 0.08);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .menu-tabs__tab:hover {
+    border-color: var(--color-accent);
+  }
+
+  .menu-tabs__tab.is-active {
+    background: var(--color-primary-dark);
+    color: var(--color-text-light);
   }
 
   .categoria {
     margin-bottom: 2.5rem;
+    scroll-margin-top: 5rem;
   }
 
   .grid {
@@ -45,3 +140,78 @@ import { menu } from "../data/menu";
     margin-top: 1rem;
   }
 </style>
+
+<script>
+  import { normalizar } from "../utils/texto";
+
+  function initMenuTabs() {
+    const tabs = document.querySelectorAll<HTMLAnchorElement>(".menu-tabs__tab");
+    const secciones = document.querySelectorAll<HTMLElement>(".categoria");
+    const buscador = document.querySelector<HTMLInputElement>(".menu-buscador");
+    if (!tabs.length) return;
+
+    let activeTab = "todas";
+
+    function render({ scroll = false }: { scroll?: boolean } = {}) {
+      const q = normalizar(buscador?.value ?? "");
+
+      secciones.forEach((sec) => {
+        const items = sec.querySelectorAll<HTMLElement>(".menu-item");
+        let algunaVisible = false;
+        items.forEach((item) => {
+          const coincide = !q || (item.dataset.nombre ?? "").includes(q);
+          item.hidden = !coincide;
+          if (coincide) algunaVisible = true;
+        });
+
+        const coincideTab = activeTab === "todas" || sec.dataset.categoria === activeTab;
+        sec.hidden = q ? !algunaVisible : !coincideTab;
+      });
+
+      tabs.forEach((tab) => {
+        const activo = tab.dataset.target === activeTab;
+        tab.classList.toggle("is-active", activo);
+        tab.setAttribute("aria-selected", String(activo));
+      });
+
+      if (scroll) {
+        const destino =
+          activeTab === "todas"
+            ? document.querySelector(".menu-tabs")
+            : document.getElementById(activeTab);
+        destino?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", (e) => {
+        e.preventDefault();
+        activeTab = tab.dataset.target ?? "todas";
+        if (buscador) buscador.value = "";
+        history.replaceState(null, "", activeTab === "todas" ? location.pathname : `#${activeTab}`);
+        render({ scroll: true });
+      });
+    });
+
+    buscador?.addEventListener("input", () => render());
+
+    // Deep-link: puede venir de un tab (#categoria) o de un producto
+    // compartido (#slug-del-producto) — en ese caso hay que activar la
+    // categoría a la que pertenece y hacer scroll al producto, no solo a la sección.
+    const hash = location.hash.replace("#", "");
+    const hashEl = hash ? document.getElementById(hash) : null;
+    if (hashEl?.classList.contains("categoria")) {
+      activeTab = hash;
+      render();
+    } else if (hashEl?.classList.contains("menu-item")) {
+      const categoriaPadre = hashEl.closest<HTMLElement>(".categoria");
+      activeTab = categoriaPadre?.dataset.categoria ?? "todas";
+      render();
+      hashEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      render();
+    }
+  }
+
+  document.addEventListener("astro:page-load", initMenuTabs);
+</script>
