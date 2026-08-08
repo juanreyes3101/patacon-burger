@@ -4,12 +4,13 @@ import MenuItem from "../components/MenuItem.astro";
 import { menu } from "../data/menu";
 
 const destacados = menu.flatMap((cat) => cat.items).filter((item) => item.destacado);
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Inicio">
   <section class="hero">
     <div class="container hero__inner">
-      <span class="badge">Producto estrella</span>
+      <span class="badge">Especialidad de la casa</span>
       <h1>Patacón Burger</h1>
       <p class="hero__tagline">De barrio, con sazón de casa.</p>
       <p class="hero__desc">
@@ -17,8 +18,8 @@ const destacados = menu.flatMap((cat) => cat.items).filter((item) => item.destac
         empanadas, pasteles y chorizos como los de toda la vida del barrio.
       </p>
       <div class="hero__ctas">
-        <a class="btn btn--primary" href="/menu">Ver el menú</a>
-        <a class="btn btn--whatsapp" href="/contacto">Ubicación y pedidos</a>
+        <a class="btn btn--primary" href={`${base}menu`}>Ver el menú</a>
+        <a class="btn btn--whatsapp" href={`${base}contacto`}>Ubicación y pedidos</a>
       </div>
     </div>
   </section>
@@ -36,7 +37,7 @@ const destacados = menu.flatMap((cat) => cat.items).filter((item) => item.destac
     <div class="container cta-final" data-reveal>
       <h2>¿Antojo de patacón?</h2>
       <p>Escríbenos y te lo tenemos listo.</p>
-      <a class="btn btn--whatsapp" href="/contacto">Hacer pedido</a>
+      <a class="btn btn--whatsapp" href={`${base}contacto`}>Hacer pedido</a>
     </div>
   </section>
 </BaseLayout>

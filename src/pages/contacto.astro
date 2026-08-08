@@ -1,8 +1,31 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { negocio, enlaceWhatsApp, enlaceMapa } from "../data/negocio";
+import { negocio, enlaceWhatsApp, enlaceMapa, enlaceMapaEmbed } from "../data/negocio";
 
-const { direccion, horario } = negocio;
+const { direccion, horario, metodosPago } = negocio;
+
+const faqs = [
+  {
+    pregunta: "¿Cómo hago un pedido?",
+    respuesta: "Por WhatsApp — usa el botón \"Pedir por WhatsApp\" en cualquier página del sitio.",
+  },
+  {
+    pregunta: "¿Cuál es el horario de atención?",
+    respuesta: "Lunes a sábado, de 4:00 p.m. a 10:00 p.m.",
+  },
+  {
+    pregunta: "¿Abren los domingos?",
+    respuesta: "No, los domingos permanecemos cerrados.",
+  },
+  {
+    pregunta: "¿Qué métodos de pago aceptan?",
+    respuesta: "Efectivo, Nequi y llave Bre-B.",
+  },
+  {
+    pregunta: "¿Dónde están ubicados?",
+    respuesta: `${direccion}. Usa el botón "Cómo llegar" para abrir la ruta en Google Maps.`,
+  },
+];
 ---
 
 <BaseLayout title="Contacto">
@@ -21,7 +44,7 @@ const { direccion, horario } = negocio;
 
         <div>
           <h2>Horario</h2>
-          <ul class="horario">
+          <ul class="lista-simple">
             {
               horario.map((h) => (
                 <li>
@@ -31,6 +54,32 @@ const { direccion, horario } = negocio;
             }
           </ul>
         </div>
+
+        <div>
+          <h2>Métodos de pago</h2>
+          <ul class="lista-simple">
+            {
+              metodosPago.map((m) => (
+                <li>
+                  <strong>{m.nombre}</strong>
+                  {"dato" in m && m.dato ? `: ${m.dato}` : ""}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="mapa">
+        <iframe
+          src={enlaceMapaEmbed}
+          width="100%"
+          height="320"
+          style="border:0"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Mapa de ubicación de Patacón Burger"
+        />
       </div>
 
       <div class="contacto__cta">
@@ -39,6 +88,18 @@ const { direccion, horario } = negocio;
           Pedir por WhatsApp
         </a>
       </div>
+
+      <div class="faq">
+        <h2>Preguntas frecuentes</h2>
+        {
+          faqs.map((f) => (
+            <details class="faq__item">
+              <summary>{f.pregunta}</summary>
+              <p>{f.respuesta}</p>
+            </details>
+          ))
+        }
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -46,23 +107,53 @@ const { direccion, horario } = negocio;
 <style>
   .contacto__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 2rem;
     margin: 2rem 0;
   }
 
-  .horario {
+  .lista-simple {
     list-style: none;
     padding: 0;
     margin: 0;
   }
 
-  .horario li {
+  .lista-simple li {
     margin-bottom: 0.4rem;
+  }
+
+  .mapa {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(43, 27, 18, 0.08);
+    margin-bottom: 2rem;
   }
 
   .contacto__cta {
     text-align: center;
-    margin-top: 2rem;
+    margin: 2rem 0;
+  }
+
+  .faq {
+    margin-top: 2.5rem;
+  }
+
+  .faq__item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 8px rgba(43, 27, 18, 0.08);
+  }
+
+  .faq__item summary {
+    font-family: var(--font-display);
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .faq__item p {
+    margin: 0.6rem 0 0;
+    color: #5a4636;
   }
 </style>

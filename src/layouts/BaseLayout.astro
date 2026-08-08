@@ -1,6 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import WhatsAppButton from "../components/WhatsAppButton.astro";
+import { negocio } from "../data/negocio";
 import "../styles/global.css";
 
 interface Props {
@@ -13,12 +14,40 @@ const {
   description = "Patacón Burger — hamburguesas de patacón, empanadas, pasteles y chorizos de barrio.",
 } = Astro.props;
 
+const base = import.meta.env.BASE_URL;
+
 const nav = [
-  { href: "/", label: "Inicio" },
-  { href: "/menu", label: "Menú" },
-  { href: "/nosotros", label: "Nosotros" },
-  { href: "/contacto", label: "Contacto" },
+  { href: base, label: "Inicio" },
+  { href: `${base}menu`, label: "Menú" },
+  { href: `${base}nosotros`, label: "Nosotros" },
+  { href: `${base}contacto`, label: "Contacto" },
 ];
+
+const ogUrl = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(`${base}og-image.png`, Astro.site);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  name: "Patacón Burger",
+  image: ogImage.toString(),
+  telephone: `+${negocio.numeroWhatsApp}`,
+  servesCuisine: "Comida rápida colombiana",
+  priceRange: "$$",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Calle 8 Sur #31A-40, Barrio Santa Matilde, Localidad Puente Aranda",
+    addressLocality: "Bogotá",
+    addressRegion: "Bogotá D.C.",
+    addressCountry: "CO",
+  },
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: negocio.horarioSchema.dias,
+    opens: negocio.horarioSchema.abre,
+    closes: negocio.horarioSchema.cierra,
+  },
+};
 ---
 
 <html lang="es">
@@ -26,7 +55,8 @@ const nav = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <link rel="canonical" href={ogUrl} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -34,6 +64,20 @@ const nav = [
       rel="stylesheet"
     />
     <title>{title} · Patacón Burger</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Patacón Burger" />
+    <meta property="og:title" content={`${title} · Patacón Burger`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={`${title} · Patacón Burger`} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+
     <ClientRouter />
     <script is:inline>
       document.documentElement.classList.add("js");
@@ -42,7 +86,7 @@ const nav = [
   <body>
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="site-header__brand" href="/">Patacón Burger</a>
+        <a class="site-header__brand" href={base}>Patacón Burger</a>
         <nav class="site-header__nav">
           {
             nav.map((item) => (
@@ -126,25 +170,26 @@ const nav = [
     </style>
 
     <script>
+      let revealObserver: IntersectionObserver | undefined;
+
       function initScrollReveal() {
-        if (window.__revealObserver) window.__revealObserver.disconnect();
+        revealObserver?.disconnect();
         const elementos = document.querySelectorAll("[data-reveal]:not(.is-visible)");
         if (!elementos.length) return;
 
-        const observer = new IntersectionObserver(
+        revealObserver = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
                 entry.target.classList.add("is-visible");
-                observer.unobserve(entry.target);
+                revealObserver?.unobserve(entry.target);
               }
             });
           },
           { threshold: 0.15 }
         );
 
-        elementos.forEach((el) => observer.observe(el));
-        window.__revealObserver = observer;
+        elementos.forEach((el) => revealObserver?.observe(el));
       }
 
       document.addEventListener("astro:page-load", initScrollReveal);

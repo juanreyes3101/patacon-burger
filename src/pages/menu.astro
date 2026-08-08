@@ -13,10 +13,27 @@ import { menu } from "../data/menu";
       </p>
 
       <div class="menu-tabs" role="tablist" aria-label="Categorías del menú">
-        <a href="#todas" class="menu-tabs__tab is-active" data-target="todas">Todas</a>
+        <a
+          href="#todas"
+          id="tab-todas"
+          role="tab"
+          aria-selected="true"
+          class="menu-tabs__tab is-active"
+          data-target="todas"
+        >
+          Todas
+        </a>
         {
           menu.map((categoria) => (
-            <a href={`#${categoria.slug}`} class="menu-tabs__tab" data-target={categoria.slug}>
+            <a
+              href={`#${categoria.slug}`}
+              id={`tab-${categoria.slug}`}
+              role="tab"
+              aria-selected="false"
+              aria-controls={categoria.slug}
+              class="menu-tabs__tab"
+              data-target={categoria.slug}
+            >
               {categoria.titulo}
             </a>
           ))
@@ -25,7 +42,13 @@ import { menu } from "../data/menu";
 
       {
         menu.map((categoria) => (
-          <div class="categoria" id={categoria.slug} data-categoria={categoria.slug}>
+          <div
+            class="categoria"
+            id={categoria.slug}
+            role="tabpanel"
+            aria-labelledby={`tab-${categoria.slug}`}
+            data-categoria={categoria.slug}
+          >
             <h2>{categoria.titulo}</h2>
             <div class="grid">
               {categoria.items.map((item) => (
@@ -77,7 +100,7 @@ import { menu } from "../data/menu";
   }
 
   .menu-tabs__tab.is-active {
-    background: var(--color-primary);
+    background: var(--color-primary-dark);
     color: var(--color-text-light);
   }
 
@@ -96,14 +119,16 @@ import { menu } from "../data/menu";
 
 <script>
   function initMenuTabs() {
-    const tabs = document.querySelectorAll(".menu-tabs__tab");
-    const secciones = document.querySelectorAll(".categoria");
+    const tabs = document.querySelectorAll<HTMLAnchorElement>(".menu-tabs__tab");
+    const secciones = document.querySelectorAll<HTMLElement>(".categoria");
     if (!tabs.length) return;
 
-    function activar(target, { scroll = true } = {}) {
-      tabs.forEach((tab) =>
-        tab.classList.toggle("is-active", tab.dataset.target === target)
-      );
+    function activar(target: string, { scroll = true }: { scroll?: boolean } = {}) {
+      tabs.forEach((tab) => {
+        const activo = tab.dataset.target === target;
+        tab.classList.toggle("is-active", activo);
+        tab.setAttribute("aria-selected", String(activo));
+      });
       secciones.forEach((sec) => {
         sec.hidden = target !== "todas" && sec.dataset.categoria !== target;
       });
@@ -119,7 +144,7 @@ import { menu } from "../data/menu";
     tabs.forEach((tab) => {
       tab.addEventListener("click", (e) => {
         e.preventDefault();
-        const target = tab.dataset.target;
+        const target = tab.dataset.target as string;
         activar(target);
         history.replaceState(null, "", target === "todas" ? location.pathname : `#${target}`);
       });

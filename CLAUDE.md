@@ -51,7 +51,13 @@ Para hacerlo de forma guiada, usar la skill `/agregar-item-menu`.
 
 ## Cómo actualizar los datos del negocio
 
-Dirección, horario y número de WhatsApp viven en un solo lugar: `src/data/negocio.ts`. Editar ese archivo actualiza automáticamente el botón de WhatsApp, la página de Contacto y el link de "Cómo llegar" a la vez — no hay que tocarlos por separado.
+Dirección, horario, número de WhatsApp y métodos de pago viven en un solo lugar: `src/data/negocio.ts`. Editar ese archivo actualiza automáticamente el botón de WhatsApp, la página de Contacto, el link de "Cómo llegar", el mapa embebido y el JSON-LD de `BaseLayout.astro` a la vez — no hay que tocarlos por separado.
+
+Si cambia el horario, actualizar también `horarioSchema` (mismo objeto, formato que usa el JSON-LD de `schema.org` para Google — días en inglés, horas en 24h).
+
+## Cómo agregar un testimonio
+
+Sin reseñas reales todavía, `src/data/testimonios.ts` exporta un arreglo vacío a propósito (no se inventan testimonios falsos). Cuando haya una reseña real, agregar `{ nombre, texto }` al arreglo — la sección aparece sola en `/nosotros` en cuanto haya al menos un testimonio, vía `src/components/Testimonios.astro`.
 
 ## Cómo agregar una página nueva
 
@@ -63,7 +69,7 @@ Dirección, horario y número de WhatsApp viven en un solo lugar: `src/data/nego
 
 - **Colores**: rojo/naranja como color principal (apetito, comida callejera), amarillo como acento, fondo oscuro para secciones de contraste. Variables CSS definidas en `src/styles/global.css`.
 - **Tipografía**: Montserrat (peso 800/900) para nombre/encabezados/botones + Nunito Sans para cuerpo y menú. Variables en `--font-display`/`--font-body` de `global.css`.
-- **Foto principal**: la hamburguesa de patacón es la protagonista del hero de Inicio.
+- **Foto principal**: la hamburguesa de patacón debe ser la protagonista del hero de Inicio — pendiente de foto real (hoy el hero es solo texto sobre gradiente porque no hay fotos del local/producto todavía, ver `src/assets/productos/README.md`).
 - **CTA**: el botón de WhatsApp para pedir debe ser visible en todo momento (sticky), el sitio es mobile-first.
 
 ## Contenido pendiente de datos reales
@@ -72,4 +78,8 @@ Dirección, horario y WhatsApp reales ya están cargados en `src/data/negocio.ts
 
 ## Despliegue
 
-El sitio se publica en **GitHub Pages** desde el repositorio `juanreyes3101/patacon-burger`. Cada cambio se sube como commit/PR independiente siguiendo el flujo normal de rama → cambios → push → PR.
+El sitio se publica en **GitHub Pages** desde el repositorio `juanreyes3101/patacon-burger`, en la subruta `https://juanreyes3101.github.io/patacon-burger/` (el repo no se llama `juanreyes3101.github.io`, así que no es un user page). `astro.config.mjs` define `site` y `base: "/patacon-burger"` — cualquier link interno nuevo debe construirse con `import.meta.env.BASE_URL` (ver `BaseLayout.astro`/`index.astro`) en vez de rutas absolutas tipo `/menu`, o se rompe en producción.
+
+El despliegue corre automático vía `.github/workflows/deploy.yml` (`withastro/action` + `actions/deploy-pages`) en cada push a `main`. Requiere que en GitHub, Settings → Pages → Source esté puesto en "GitHub Actions" (se configura una sola vez desde la UI del repo).
+
+Cada cambio se sube como commit/PR independiente siguiendo el flujo normal de rama → cambios → push → PR.
