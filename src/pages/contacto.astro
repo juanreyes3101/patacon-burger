@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import EstadoHorario from "../components/EstadoHorario.astro";
 import { negocio, enlaceWhatsApp, enlaceMapa, enlaceMapaEmbed } from "../data/negocio";
 
 const { direccion, horario, metodosPago } = negocio;
@@ -44,6 +45,7 @@ const faqs = [
 
         <div>
           <h2>Horario</h2>
+          <p><EstadoHorario /></p>
           <ul class="lista-simple">
             {
               horario.map((h) => (

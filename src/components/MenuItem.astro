@@ -2,6 +2,10 @@
 import { Image } from "astro:assets";
 import type { MenuItem } from "../data/menu";
 import { imagenesProductos } from "../utils/imagenesProductos";
+import { normalizar } from "../utils/texto";
+import { slugify } from "../utils/slugify";
+import { enlacePedido } from "../data/negocio";
+import IconoCompartir from "./IconoCompartir.astro";
 
 interface Props {
   item: MenuItem;
@@ -22,9 +26,16 @@ const imagenSrc = item.imagen
 if (item.imagen && !imagenSrc) {
   console.warn(`[menu] imagen "${item.imagen}" no encontrada en src/assets/productos/`);
 }
+
+const itemSlug = slugify(item.nombre);
+const base = import.meta.env.BASE_URL;
+const urlProducto = new URL(`${base}menu#${itemSlug}`, Astro.site).toString();
+const enlacePedidoProducto = enlacePedido(
+  `¡Hola! Quiero pedir: ${item.nombre} (${precioFormateado})`
+);
 ---
 
-<article class="menu-item" data-reveal>
+<article class="menu-item" id={itemSlug} data-reveal data-nombre={normalizar(item.nombre)}>
   {imagenSrc && (
     <Image
       src={imagenSrc}
@@ -41,6 +52,21 @@ if (item.imagen && !imagenSrc) {
     </div>
     <p class="menu-item__descripcion">{item.descripcion}</p>
     <p class="menu-item__precio">{precioFormateado}</p>
+    <div class="menu-item__actions">
+      <a class="btn btn--whatsapp btn--small" href={enlacePedidoProducto} target="_blank" rel="noopener">
+        Pedir por WhatsApp
+      </a>
+      <button
+        type="button"
+        class="share-btn"
+        data-share-title={item.nombre}
+        data-share-text={item.descripcion}
+        data-share-url={urlProducto}
+        aria-label={`Compartir ${item.nombre}`}
+      >
+        <IconoCompartir />
+      </button>
+    </div>
   </div>
 </article>
 
@@ -53,6 +79,7 @@ if (item.imagen && !imagenSrc) {
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    scroll-margin-top: 5rem;
   }
 
   .menu-item:hover {
@@ -101,6 +128,18 @@ if (item.imagen && !imagenSrc) {
   .menu-item__precio {
     margin: 0;
     font-weight: 800;
-    color: var(--color-primary);
+    color: var(--color-primary-dark);
+  }
+
+  .menu-item__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .menu-item__actions .btn--small {
+    flex: 1;
+    text-align: center;
   }
 </style>

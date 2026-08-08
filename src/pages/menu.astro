@@ -12,6 +12,13 @@ import { menu } from "../data/menu";
         Todo casero, hecho el mismo día. Precios en pesos colombianos.
       </p>
 
+      <input
+        type="search"
+        class="menu-buscador"
+        placeholder="Buscar en el menú…"
+        aria-label="Buscar productos por nombre"
+      />
+
       <div class="menu-tabs" role="tablist" aria-label="Categorías del menú">
         <a
           href="#todas"
@@ -68,6 +75,23 @@ import { menu } from "../data/menu";
     margin-bottom: 1.5rem;
   }
 
+  .menu-buscador {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    padding: 0.65em 1em;
+    margin-bottom: 1rem;
+    border: 2px solid #e6d9cb;
+    border-radius: 999px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+  }
+
+  .menu-buscador:focus {
+    outline: none;
+    border-color: var(--color-primary-dark);
+  }
+
   .menu-tabs {
     display: flex;
     gap: 0.6rem;
@@ -118,25 +142,43 @@ import { menu } from "../data/menu";
 </style>
 
 <script>
+  import { normalizar } from "../utils/texto";
+
   function initMenuTabs() {
     const tabs = document.querySelectorAll<HTMLAnchorElement>(".menu-tabs__tab");
     const secciones = document.querySelectorAll<HTMLElement>(".categoria");
+    const buscador = document.querySelector<HTMLInputElement>(".menu-buscador");
     if (!tabs.length) return;
 
-    function activar(target: string, { scroll = true }: { scroll?: boolean } = {}) {
+    let activeTab = "todas";
+
+    function render({ scroll = false }: { scroll?: boolean } = {}) {
+      const q = normalizar(buscador?.value ?? "");
+
+      secciones.forEach((sec) => {
+        const items = sec.querySelectorAll<HTMLElement>(".menu-item");
+        let algunaVisible = false;
+        items.forEach((item) => {
+          const coincide = !q || (item.dataset.nombre ?? "").includes(q);
+          item.hidden = !coincide;
+          if (coincide) algunaVisible = true;
+        });
+
+        const coincideTab = activeTab === "todas" || sec.dataset.categoria === activeTab;
+        sec.hidden = q ? !algunaVisible : !coincideTab;
+      });
+
       tabs.forEach((tab) => {
-        const activo = tab.dataset.target === target;
+        const activo = tab.dataset.target === activeTab;
         tab.classList.toggle("is-active", activo);
         tab.setAttribute("aria-selected", String(activo));
       });
-      secciones.forEach((sec) => {
-        sec.hidden = target !== "todas" && sec.dataset.categoria !== target;
-      });
+
       if (scroll) {
         const destino =
-          target === "todas"
+          activeTab === "todas"
             ? document.querySelector(".menu-tabs")
-            : document.getElementById(target);
+            : document.getElementById(activeTab);
         destino?.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
@@ -144,15 +186,30 @@ import { menu } from "../data/menu";
     tabs.forEach((tab) => {
       tab.addEventListener("click", (e) => {
         e.preventDefault();
-        const target = tab.dataset.target as string;
-        activar(target);
-        history.replaceState(null, "", target === "todas" ? location.pathname : `#${target}`);
+        activeTab = tab.dataset.target ?? "todas";
+        if (buscador) buscador.value = "";
+        history.replaceState(null, "", activeTab === "todas" ? location.pathname : `#${activeTab}`);
+        render({ scroll: true });
       });
     });
 
+    buscador?.addEventListener("input", () => render());
+
+    // Deep-link: puede venir de un tab (#categoria) o de un producto
+    // compartido (#slug-del-producto) — en ese caso hay que activar la
+    // categoría a la que pertenece y hacer scroll al producto, no solo a la sección.
     const hash = location.hash.replace("#", "");
-    if (hash && document.getElementById(hash)) {
-      activar(hash, { scroll: false });
+    const hashEl = hash ? document.getElementById(hash) : null;
+    if (hashEl?.classList.contains("categoria")) {
+      activeTab = hash;
+      render();
+    } else if (hashEl?.classList.contains("menu-item")) {
+      const categoriaPadre = hashEl.closest<HTMLElement>(".categoria");
+      activeTab = categoriaPadre?.dataset.categoria ?? "todas";
+      render();
+      hashEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      render();
     }
   }
 

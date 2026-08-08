@@ -59,6 +59,20 @@ Si cambia el horario, actualizar también `horarioSchema` (mismo objeto, formato
 
 Sin reseñas reales todavía, `src/data/testimonios.ts` exporta un arreglo vacío a propósito (no se inventan testimonios falsos). Cuando haya una reseña real, agregar `{ nombre, texto }` al arreglo — la sección aparece sola en `/nosotros` en cuanto haya al menos un testimonio, vía `src/components/Testimonios.astro`.
 
+## Pedir por WhatsApp y compartir por producto
+
+Cada tarjeta de producto (`MenuItem.astro`) tiene su propio botón "Pedir por WhatsApp" con el nombre y precio de ese producto ya escritos en el mensaje (usa `enlacePedido(mensaje)` de `negocio.ts`, no el `enlaceWhatsApp` genérico). También tiene un botón de compartir (ícono, `src/components/IconoCompartir.astro`) que usa la Web Share API nativa del navegador — solo aparece si el navegador la soporta (clase `share-supported` en `<html>`, revisada por script en `BaseLayout.astro`; no hay fallback de "copiar enlace" a propósito, se mantiene simple).
+
+Cada producto tiene un `id` único generado con `slugify(item.nombre)` (`src/utils/slugify.ts`), así que se puede enlazar directo a un producto con `/menu#slug-del-producto`. El buscador de `/menu` filtra por `data-nombre` (texto normalizado sin tildes vía `src/utils/texto.ts`).
+
+## Indicador "Abierto ahora / Cerrado"
+
+`src/components/EstadoHorario.astro` renderiza un badge vacío (`hidden`) que un script en `BaseLayout.astro` rellena en el cliente, calculando la hora **de Bogotá** (no la del visitante) contra `negocio.horarioSchema`. Está en el hero de Inicio y en la sección de Horario de Contacto — para agregarlo en otra página, solo hace falta `<EstadoHorario />`.
+
+## Analítica (GoatCounter)
+
+`negocio.goatcounterCode` está vacío a propósito — mientras lo esté, `BaseLayout.astro` no carga ningún script de analítica. Para activarla: crear una cuenta gratis en [goatcounter.com](https://www.goatcounter.com/) y pegar el "code" del sitio (el subdominio que asigna, ej. `patacon-burger` de `patacon-burger.goatcounter.com`) en ese campo.
+
 ## Cómo agregar una página nueva
 
 1. Crear el archivo en `src/pages/<slug>.astro`.

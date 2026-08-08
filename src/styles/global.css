@@ -17,6 +17,13 @@
   box-sizing: border-box;
 }
 
+/* El atributo `hidden` debe ganar siempre, incluso sobre componentes que
+   fijan su propio `display` (ej. `.menu-item { display: flex }`) — sin esto,
+   el filtro de búsqueda del menú no oculta las tarjetas que no coinciden. */
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
@@ -141,4 +148,61 @@ img {
   background: #25d366;
   color: #08331b;
   box-shadow: 0 4px 0 #128c43;
+}
+
+.btn--small {
+  padding: 0.5em 1em;
+  font-size: 0.8rem;
+}
+
+/* Botón de compartir: oculto hasta confirmar que el navegador soporta la Web
+   Share API (clase agregada por script en BaseLayout.astro). */
+.share-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  width: 2.3rem;
+  height: 2.3rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 2px solid var(--color-primary-dark);
+  background: transparent;
+  color: var(--color-primary-dark);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.share-supported .share-btn {
+  display: inline-flex;
+}
+
+.share-btn--footer {
+  width: auto;
+  height: auto;
+  padding: 0.5em 1em;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-color: var(--color-text-light);
+  color: var(--color-text-light);
+}
+
+.estado-horario {
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.35em 0.85em;
+  border-radius: 999px;
+}
+
+.estado-horario--abierto {
+  background: #17703c;
+  color: #eafff1;
+}
+
+.estado-horario--cerrado {
+  background: #55483d;
+  color: #fff3e2;
 }

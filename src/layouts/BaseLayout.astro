@@ -1,6 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import WhatsAppButton from "../components/WhatsAppButton.astro";
+import IconoCompartir from "../components/IconoCompartir.astro";
 import { negocio } from "../data/negocio";
 import "../styles/global.css";
 
@@ -60,9 +61,20 @@ const jsonLd = {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      id="fonts-preload"
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Nunito+Sans:wght@400;700;800&display=swap"
-      rel="stylesheet"
     />
+    <script is:inline>
+      document.getElementById("fonts-preload").rel = "stylesheet";
+    </script>
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Nunito+Sans:wght@400;700;800&display=swap"
+      />
+    </noscript>
     <title>{title} · Patacón Burger</title>
 
     <meta property="og:type" content="website" />
@@ -78,9 +90,21 @@ const jsonLd = {
 
     <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
 
+    {negocio.goatcounterCode && (
+      <script
+        is:inline
+        data-goatcounter={`https://${negocio.goatcounterCode}.goatcounter.com/count`}
+        async
+        src="//gc.zgo.at/count.js"
+      />
+    )}
+
     <ClientRouter />
     <script is:inline>
       document.documentElement.classList.add("js");
+      if ("share" in navigator) {
+        document.documentElement.classList.add("share-supported");
+      }
     </script>
   </head>
   <body>
@@ -104,6 +128,15 @@ const jsonLd = {
     <footer class="site-footer">
       <div class="container">
         <p>Patacón Burger — de barrio, con sazón de casa.</p>
+        <button
+          type="button"
+          class="share-btn share-btn--footer"
+          data-share-title="Patacón Burger"
+          data-share-text={description}
+          data-share-url={ogUrl.toString()}
+        >
+          <IconoCompartir /> Compartir el sitio
+        </button>
         <p class="site-footer__small">
           © {new Date().getFullYear()} Patacón Burger. Todos los derechos reservados.
         </p>
@@ -170,6 +203,56 @@ const jsonLd = {
     </style>
 
     <script>
+      import { negocio } from "../data/negocio";
+
+      document.addEventListener("click", (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".share-btn");
+        if (!btn) return;
+        const title = btn.dataset.shareTitle ?? document.title;
+        const text = btn.dataset.shareText ?? "";
+        const url = btn.dataset.shareUrl ?? location.href;
+        navigator.share?.({ title, text, url }).catch(() => {});
+      });
+
+      function minutosDesdeHHMM(hhmm: string): number {
+        const [h, m] = hhmm.split(":").map(Number);
+        return h * 60 + m;
+      }
+
+      function actualizarEstadoHorario() {
+        const elementos = document.querySelectorAll<HTMLElement>("[data-estado-horario]");
+        if (!elementos.length) return;
+
+        const formato = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/Bogota",
+          weekday: "long",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        });
+        const partes: Record<string, string> = {};
+        formato.formatToParts(new Date()).forEach((p) => {
+          partes[p.type] = p.value;
+        });
+        const horaMin = Number(partes.hour) * 60 + Number(partes.minute);
+
+        const { dias, abre, cierra } = negocio.horarioSchema;
+        const abierto =
+          dias.includes(partes.weekday) &&
+          horaMin >= minutosDesdeHHMM(abre) &&
+          horaMin < minutosDesdeHHMM(cierra);
+
+        elementos.forEach((el) => {
+          el.textContent = abierto ? "● Abierto ahora" : "● Cerrado ahora";
+          el.classList.toggle("estado-horario--abierto", abierto);
+          el.classList.toggle("estado-horario--cerrado", !abierto);
+          el.style.display = "inline-flex";
+          el.hidden = false;
+        });
+      }
+
+      document.addEventListener("astro:page-load", actualizarEstadoHorario);
+
       let revealObserver: IntersectionObserver | undefined;
 
       function initScrollReveal() {
